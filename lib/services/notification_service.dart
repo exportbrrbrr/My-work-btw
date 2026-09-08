@@ -31,6 +31,8 @@ class NotificationService {
       final id = _stableId(medicine.id, hhmm);
 
       await _plugin.zonedSchedule(
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         id,
         'แจ้งเตือนการกินยา',
         '${medicine.name} • ${medicine.quantityPerDose} ${medicine.type}',
