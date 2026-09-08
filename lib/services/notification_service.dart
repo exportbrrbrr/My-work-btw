@@ -50,7 +50,6 @@ class NotificationService {
             interruptionLevel: InterruptionLevel.critical,
           ),
         ),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time, // repeats daily
         payload: medicine.id,
       );
