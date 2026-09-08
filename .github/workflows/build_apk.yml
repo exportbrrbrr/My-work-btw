@@ -33,8 +33,11 @@ jobs:
     - name: Generate Android project structure
       run: flutter create . --platforms=android
 
-    - name: Enable Core Library Desugaring
+    - name: Configure ProGuard Rules & Enable Desugaring
       run: |
+        mkdir -p android/app
+        echo "-dontwarn com.google.mlkit.vision.text.**" >> android/app/proguard-rules.pro
+        echo "-ignorewarnings" >> android/app/proguard-rules.pro
         python3 -c "
         import os
         bg_path = 'android/app/build.gradle'
