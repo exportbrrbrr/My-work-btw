@@ -1,41 +1,63 @@
 name: Build Android APK
- 
+
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
   workflow_dispatch:
- 
+
 jobs:
   build:
     runs-on: ubuntu-latest
- 
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
- 
+
     - name: Set up Java
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
         java-version: '17'
- 
+
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.x'
         channel: 'stable'
- 
+
     - name: Install dependencies
       run: flutter pub get
- 
+
     - name: Generate Android project structure
       run: flutter create . --platforms=android
- 
+
+    - name: Enable Core Library Desugaring
+      run: |
+        python3 -c "
+        import os
+        bg_path = 'android/app/build.gradle'
+        bg_kts_path = 'android/app/build.gradle.kts'
+        if os.path.exists(bg_path):
+            with open(bg_path, 'r') as f:
+                content = f.read()
+            content = content.replace('compileOptions {', 'compileOptions {\n        coreLibraryDesugaringEnabled true')
+            content += '\ndependencies {\n    coreLibraryDesugaring \"com.android.tools:desugar_jdk_libs:2.0.4\"\n}\n'
+            with open(bg_path, 'w') as f:
+                f.write(content)
+        elif os.path.exists(bg_kts_path):
+            with open(bg_kts_path, 'r') as f:
+                content = f.read()
+            content = content.replace('compileOptions {', 'compileOptions {\n        isCoreLibraryDesugaringEnabled = true')
+            content += '\ndependencies {\n    coreLibraryDesugaring(\"com.android.tools:desugar_jdk_libs:2.0.4\")\n}\n'
+            with open(bg_kts_path, 'w') as f:
+                f.write(content)
+        "
+
     - name: Build APK
       run: flutter build apk --release
- 
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
